@@ -21,21 +21,31 @@ No other software I tried made my stick rumble. PadRevive is the only one that d
 - Two-player support, including shared arcade encoders.
 - Local controller profiles and per-game mappings.
 - Controller health tools, stick rescue, encoder tests, and input trace inspection.
-- Native Windows interface with crisp text and controls on displays up to 4K.
+- A modern, easy-to-use, interactive Windows interface.
 
 Rumble support depends on the controller: native XInput and supported 0810:0001 HID motor layouts are included.
 
 ## Screenshots
 
-### Controller dashboard
+### Controller
 
-![PadRevive controller dashboard](screenshots/dashboard.png)
+![PadRevive Controller screen](screenshots/controller.png)
 
-### Live input
+### Test
 
-![PadRevive live input preview](screenshots/live-input.png)
+![PadRevive Test screen](screenshots/test.png)
 
-[View the full 4K screenshot](screenshots/dashboard-4k.png). These previews show a sample controller session.
+### Rumble
+
+![PadRevive Rumble screen](screenshots/rumble.png)
+
+### Workbench
+
+![PadRevive Workbench screen](screenshots/workbench.png)
+
+### Revive Lab
+
+![PadRevive Revive Lab screen](screenshots/revive-lab.png)
 
 ## Get started
 

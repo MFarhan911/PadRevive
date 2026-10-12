@@ -13,15 +13,31 @@ No other software I tried made my stick rumble. PadRevive is the only one that d
 - Motor tests and game vibration passthrough on supported controllers.
 - Xbox 360 / DualShock 4 virtual output and two-player support.
 - Local profiles, per-game mappings, and controller health tools.
-- Native Windows interface for displays up to 4K.
+- A modern, easy-to-use, interactive Windows interface.
 
 ## Screenshots
 
-![Controller dashboard](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/dashboard.png)
+### Controller
 
-![Live input preview](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/live-input.png)
+![PadRevive Controller screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/controller.png)
 
-[Full 4K screenshot](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/dashboard-4k.png) · [Public release page](https://mfarhan911.github.io/PadRevive/)
+### Test
+
+![PadRevive Test screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/test.png)
+
+### Rumble
+
+![PadRevive Rumble screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/rumble.png)
+
+### Workbench
+
+![PadRevive Workbench screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/workbench.png)
+
+### Revive Lab
+
+![PadRevive Revive Lab screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/revive-lab.png)
+
+[Explore the interactive app tour](https://mfarhan911.github.io/PadRevive/)
 
 ## Downloads
 
@@ -29,4 +45,4 @@ No other software I tried made my stick rumble. PadRevive is the only one that d
 - **PadRevive-0.12.0-beta.2-source.zip** — complete source, artwork, libraries, and licenses.
 - **SHA256SUMS.txt** — download checksums.
 
-ViGEmBus is required separately for virtual output. Rumble support includes native XInput and supported 0810:0001 HID motor layouts. The beta executable is unsigned. Screenshot previews use a sample controller session.
+ViGEmBus is required separately for virtual output. Rumble support includes native XInput and supported 0810:0001 HID motor layouts. The beta executable is unsigned.
