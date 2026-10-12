@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="PadRevive: free, open-source Windows tools for budget gamepads and arcade sticks. Controller mapping, calibration, rumble, and virtual output.">
+  <meta name="theme-color" content="#06141e">
+  <title>PadRevive — Revive your gamepad</title>
+  <style>
+    :root{color-scheme:dark;--bg:#06141e;--panel:#0a1b28;--line:#21394b;--text:#edf5ff;--muted:#afc3d7;--cyan:#00c9ef;--blue:#087cff;--green:#14de8e}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:32px}body{margin:0;background:radial-gradient(ellipse at 65% 0,#10344b 0,transparent 50%),var(--bg);color:var(--text);font:16px/1.6 "Segoe UI",system-ui,sans-serif}a{color:inherit}button{font:inherit}a:focus-visible,button:focus-visible{outline:3px solid var(--cyan);outline-offset:5px}.wrap{width:min(1320px,calc(100% - 64px));margin:auto}header{border-bottom:1px solid var(--line);background:#06141ec9}.top{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 0}.brand{display:flex;align-items:center;gap:14px;text-decoration:none}.logo{width:54px;height:54px;fill:none;stroke:var(--cyan);stroke-width:1.8;filter:drop-shadow(0 0 7px #078cff)}.brand strong{display:block;font-size:27px;line-height:1.2}.brand small{font-size:12px;color:var(--muted)}nav{display:flex;gap:28px}nav a{text-decoration:none;color:var(--muted);font-size:14px}nav a:hover{color:var(--cyan)}.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:64px;align-items:end;padding:70px 0 46px}.badge{display:inline-flex;align-items:center;gap:9px;padding:5px 13px;border:1px solid #25684f;background:#063527;border-radius:20px;font-size:13px;color:#a8f7d4}.dot{height:7px;width:7px;background:var(--green);border-radius:50%}.eyebrow{font-size:12px;letter-spacing:2px;color:var(--cyan);font-weight:600;margin:26px 0 14px}h1{font-size:clamp(38px,4.5vw,64px);line-height:1.1;letter-spacing:-1.8px;margin:0}h1 span{color:var(--cyan)}.intro{color:var(--muted);font-size:18px;margin:20px 0 0;max-width:630px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.button{display:inline-flex;justify-content:center;align-items:center;gap:9px;padding:13px 23px;border:1px solid #31516a;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;background:#0c2332}.button.primary{background:linear-gradient(115deg,#067cff,#075ad8);border-color:#3499ff;box-shadow:0 0 20px #087cff22}.button:hover{filter:brightness(1.15)}.detail{color:var(--muted);font-size:13px;margin-top:16px}.hero-note{padding:24px 26px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(140deg,#0b2232,#081823)}.hero-note p{margin:8px 0;color:var(--muted)}.hero-note strong{color:var(--text)}.hero-note .line{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid #1c3344;font-size:14px}.hero-note .line:last-child{border:0}.preview{border:1px solid var(--line);border-radius:13px;background:#071721;overflow:hidden;box-shadow:0 22px 80px #0005}.preview-top{padding:15px 20px;display:flex;justify-content:space-between;align-items:center;gap:18px;border-bottom:1px solid var(--line)}.preview-title{font-size:14px;color:var(--muted)}.tabs{display:flex;gap:7px}.tabs button{padding:6px 13px;border:1px solid #2a4558;border-radius:6px;background:#0b2030;color:var(--muted);cursor:pointer;font-size:13px}.tabs button[aria-pressed="true"]{border-color:#008eea;background:#064b88;color:white}.preview img{display:block;width:100%;height:auto;background:#06141e}.preview-bottom{display:flex;justify-content:space-between;gap:20px;padding:14px 20px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}.preview-bottom a{color:var(--cyan);text-decoration:none}.section{padding:60px 0 0}.section-title{font-size:30px;line-height:1.2;letter-spacing:-.6px;margin:0 0 10px}.section-intro{color:var(--muted);margin:0 0 26px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:24px}.icon{font-size:23px;color:var(--cyan);line-height:1}.card h3{font-size:17px;margin:15px 0 9px}.card p{color:var(--muted);font-size:14px;margin:0}.why{display:grid;grid-template-columns:.7fr 1.3fr;gap:56px;align-items:center;padding:36px 40px;border:1px solid #2b5468;border-radius:12px;background:linear-gradient(120deg,#0b2b3b,#091b27)}.why .section-title{margin:0}.why blockquote{margin:0;font-size:23px;font-weight:600;line-height:1.5}.why p{color:var(--muted);margin:16px 0 0}.download{display:grid;grid-template-columns:1fr 1fr;gap:20px}.download .card{display:flex;flex-direction:column;align-items:flex-start}.download h3{margin:0 0 8px;font-size:21px}.download .button{margin-top:22px}.requirements{color:var(--muted);font-size:13px;margin:19px 0 0}.requirements a{color:var(--cyan)}footer{margin-top:65px;border-top:1px solid var(--line);padding:28px 0}.footer{display:flex;justify-content:space-between;gap:24px;align-items:center;font-size:13px;color:var(--muted)}.footer a{text-decoration:none}.footer-links{display:flex;gap:22px}.footer a:hover{color:var(--cyan)}
+    @media(max-width:900px){.hero{grid-template-columns:1fr;gap:28px;padding-top:46px}.hero-note{max-width:600px}.features{grid-template-columns:repeat(2,1fr)}.why{grid-template-columns:1fr;gap:24px;padding:30px}.download{grid-template-columns:1fr}}
+    @media(max-width:580px){.wrap{width:calc(100% - 32px)}.top{align-items:flex-start;flex-direction:column;gap:18px}.brand strong{font-size:25px}nav{gap:24px}.hero{padding-top:34px}.intro{font-size:16px}.hero-note{padding:20px}.preview-top{align-items:flex-start;flex-direction:column;padding:14px}.tabs{flex-wrap:wrap}.preview-bottom{padding:14px;flex-direction:column;gap:8px}.section{padding-top:42px}.features{grid-template-columns:1fr}.card{padding:22px}.why{padding:25px}.why blockquote{font-size:20px}.section-title{font-size:26px}.footer{align-items:flex-start;flex-direction:column}.footer-links{flex-wrap:wrap}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap top">
+      <a class="brand" href="#" aria-label="PadRevive home">
+        <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><path d="M15 11h18c5 0 7 4 8 9l3 14c1 5-3 8-7 4l-7-7H18l-7 7c-4 4-8 1-7-4l3-14c1-5 3-9 8-9Z"/><path d="M14 17v10m-5-5h10"/><circle cx="32" cy="18" r="1.4"/><circle cx="37" cy="23" r="1.4"/><circle cx="27" cy="23" r="1.4"/><circle cx="32" cy="28" r="1.4"/><path d="M20 7h8"/></svg>
+        <span><strong>PadRevive</strong><small>Revive your gamepad. Play without limits.</small></span>
+      </a>
+      <nav aria-label="Main navigation"><a href="#features">Features</a><a href="#why">Why created</a><a href="#download">Download</a><a href="https://github.com/MFarhan911/PadRevive">GitHub</a></nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <div class="badge"><span class="dot"></span>0.12.0 Beta 2 · Free and open source</div>
+        <p class="eyebrow">BUDGET GEAR. FULL PLAY.</p>
+        <h1 id="hero-title">Bring your controller<br><span>back to life.</span></h1>
+        <p class="intro">Map your controls, tune your sticks, and feel the rumble. PadRevive gives budget gamepads and arcade sticks a complete controller studio on Windows.</p>
+        <div class="actions"><a class="button primary" href="https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.2-native-ui.2/PadRevive-0.12.0-beta.2-win-x64.exe">↓ Download for Windows</a><a class="button" href="https://github.com/MFarhan911/PadRevive">View source</a></div>
+        <p class="detail">Windows x64 · Self-contained app · GPL-3.0-or-later</p>
+      </div>
+      <aside class="hero-note" aria-label="At a glance">
+        <p><strong>Your controller. Your setup.</strong></p>
+        <p>One place to map, calibrate, test, and play.</p>
+        <div class="line"><span>Virtual output</span><strong>Xbox 360 / DualShock 4</strong></div>
+        <div class="line"><span>Players</span><strong>Up to two</strong></div>
+        <div class="line"><span>Display support</span><strong>Up to 4K</strong></div>
+        <div class="line"><span>Profiles</span><strong>Stored locally</strong></div>
+      </aside>
+    </section>
+    <section class="preview" aria-label="App screenshots">
+      <div class="preview-top"><span class="preview-title">Inside PadRevive</span><div class="tabs" role="group" aria-label="Select screenshot"><button type="button" data-preview="dashboard" aria-pressed="true">Dashboard</button><button type="button" data-preview="live" aria-pressed="false">Live input</button><button type="button" data-preview="fourk" aria-pressed="false">4K</button></div></div>
+      <img id="preview-image" src="screenshots/dashboard.png" width="1536" height="998" alt="PadRevive controller dashboard with mapping, input monitoring, and rumble controls" fetchpriority="high">
+      <div class="preview-bottom"><span id="preview-caption">Controller dashboard · sample controller session</span><a id="preview-full" href="screenshots/dashboard.png" target="_blank" rel="noopener">Open full screenshot ↗</a></div>
+    </section>
+    <section id="features" class="section" aria-labelledby="features-title">
+      <h2 id="features-title" class="section-title">Everything your controller needs.</h2>
+      <p class="section-intro">Practical tools, from your first connection to your next game.</p>
+      <div class="features">
+        <article class="card"><span class="icon" aria-hidden="true">◎</span><h3>Live input monitor</h3><p>Watch sticks, buttons, and triggers respond in real time. Select controls directly from the mapping dock.</p></article>
+        <article class="card"><span class="icon" aria-hidden="true">⇄</span><h3>Mapping and profiles</h3><p>Remap buttons, learn a controller layout, and save local profiles or per-game mappings.</p></article>
+        <article class="card"><span class="icon" aria-hidden="true">〰</span><h3>Feel the rumble</h3><p>Test both motors, tune their strength, and pass game vibration through to supported controllers.</p></article>
+        <article class="card"><span class="icon" aria-hidden="true">⊕</span><h3>Calibrate and revive</h3><p>Adjust deadzones, inspect controller health, and use stick rescue and encoder testing tools.</p></article>
+        <article class="card"><span class="icon" aria-hidden="true">♧</span><h3>Two players, more ways to play</h3><p>Use Xbox 360 or DualShock 4 virtual output with two-player support and shared arcade encoders.</p></article>
+        <article class="card"><span class="icon" aria-hidden="true">▣</span><h3>A clear Windows interface</h3><p>Native text and controls, a detailed controller preview, and a layout that scales to 4K displays.</p></article>
+      </div>
+    </section>
+    <section id="why" class="section" aria-labelledby="why-title">
+      <div class="why"><h2 id="why-title" class="section-title">Why it was created.</h2><div><blockquote>“No other software I tried made my stick rumble. PadRevive is the only one that did.”</blockquote><p>That experience became the reason to build PadRevive: bring the feedback back and give budget controllers the mapping, calibration, and testing tools they need.</p></div></div>
+    </section>
+    <section id="download" class="section" aria-labelledby="download-title">
+      <h2 id="download-title" class="section-title">Ready to revive your gamepad?</h2>
+      <p class="section-intro">Choose the app to play, or the complete source to build and contribute.</p>
+      <div class="download">
+        <article class="card"><h3>Windows app</h3><p>PadRevive 0.12.0 Beta 2 for Windows x64. Includes the .NET runtime.</p><a class="button primary" href="https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.2-native-ui.2/PadRevive-0.12.0-beta.2-win-x64.exe">↓ Download app</a></article>
+        <article class="card"><h3>Complete source</h3><p>App source, artwork, libraries, checks, and license notices. Build with the .NET 10 SDK on Windows.</p><a class="button" href="https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.2-native-ui.2/PadRevive-0.12.0-beta.2-source.zip">↓ Download source</a></article>
+      </div>
+      <p class="requirements">ViGEmBus is required separately for virtual output. Rumble supports native XInput and supported 0810:0001 HID motor layouts. This beta executable is unsigned. <a href="https://github.com/MFarhan911/PadRevive/releases/tag/v0.12.0-beta.2-native-ui.2">Release and checksums ↗</a></p>
+    </section>
+  </main>
+  <footer><div class="wrap footer"><span>PadRevive · Budget gear. Full play.</span><div class="footer-links"><a href="https://github.com/MFarhan911/PadRevive">Source</a><a href="https://github.com/MFarhan911/PadRevive/issues">Report an issue</a><a href="https://github.com/MFarhan911/PadRevive/blob/main/PRIVACY.md">Privacy</a><a href="https://github.com/MFarhan911/PadRevive/blob/main/LICENSE">GPL-3.0-or-later</a></div></div></footer>
+  <script>
+    const previews={dashboard:{src:'screenshots/dashboard.png',width:1536,height:998,alt:'PadRevive controller dashboard with mapping, input monitoring, and rumble controls',caption:'Controller dashboard · sample controller session'},live:{src:'screenshots/live-input.png',width:1536,height:998,alt:'PadRevive showing live stick movement, button presses, and trigger input',caption:'Live input · sample controller session'},fourk:{src:'screenshots/dashboard-4k.png',width:3840,height:2160,alt:'PadRevive controller dashboard on a 4K display',caption:'4K dashboard · 3840 × 2160'}};
+    const image=document.getElementById('preview-image');
+    document.querySelectorAll('[data-preview]').forEach(button=>button.addEventListener('click',()=>{const preview=previews[button.dataset.preview];image.src=preview.src;image.alt=preview.alt;image.width=preview.width;image.height=preview.height;document.getElementById('preview-caption').textContent=preview.caption;document.getElementById('preview-full').href=preview.src;document.querySelectorAll('[data-preview]').forEach(tab=>tab.setAttribute('aria-pressed',String(tab===button)));}));
+  </script>
+</body>
+</html>

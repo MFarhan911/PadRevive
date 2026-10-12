@@ -1,0 +1,31 @@
+<UserControl x:Class="GenericPadBridge.StartupView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Visibility="Collapsed" Focusable="True" PreviewKeyDown="Startup_KeyDown">
+ <UserControl.Resources>
+  <Style TargetType="TextBlock"><Setter Property="Foreground" Value="#DAE4F3"/><Setter Property="FontFamily" Value="Segoe UI"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
+ </UserControl.Resources>
+ <Grid Background="#FA0C101C" ClipToBounds="True">
+  <Ellipse x:Name="AmbientLight" Width="850" Height="590" Fill="#302E73" Opacity="0.16" HorizontalAlignment="Center" VerticalAlignment="Center"><Ellipse.Effect><BlurEffect Radius="85"/></Ellipse.Effect></Ellipse>
+  <Grid Margin="35,24,35,26"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+   <Grid><StackPanel><TextBlock Text="PADREVIVE / CONTROLLER STUDIO" FontSize="11" Foreground="#AAB9D4" FontWeight="SemiBold"/><TextBlock x:Name="ConceptText" Text="Compact symmetric concept" FontSize="10" Foreground="#617995" Margin="0,6,0,0"/></StackPanel><Button HorizontalAlignment="Right" VerticalAlignment="Top" Content="Skip intro  ·  Esc" Click="Skip_Click" Padding="13,8" FontSize="10" Background="#242B40" Foreground="#C6D2E6" BorderBrush="#3B4661"/></Grid>
+   <Grid Grid.Row="1" Margin="0,7,0,5">
+    <Viewbox Stretch="Uniform"><Grid x:Name="SceneHost" Width="1536" Height="1024"/></Viewbox>
+    <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" CornerRadius="20" BorderBrush="#305974" BorderThickness="1" Padding="14,6" Background="#B00C1220"><TextBlock Text="COLOUR-MATCHED LIGHTING · VISUAL ONLY" FontSize="9" Foreground="#809DB7"/></Border>
+   </Grid>
+   <StackPanel Grid.Row="2" MaxWidth="740" HorizontalAlignment="Center" Width="660">
+    <Grid Margin="0,0,0,11"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock x:Name="StageText" Text="A new perspective." FontSize="24" FontWeight="SemiBold"/><TextBlock x:Name="StageDetail" Text="Product reveal" FontSize="11" Foreground="#7790B2" Margin="0,4,0,0"/></StackPanel><TextBlock x:Name="StepText" Grid.Column="1" Text="01 / 04" FontFamily="Consolas" FontSize="11" Foreground="#A99AD6" VerticalAlignment="Center"/></Grid>
+    <Grid Height="3" Margin="0,0,0,15"><Border Background="#273047" CornerRadius="2"/><Border x:Name="Progress" Background="#B9A9FF" CornerRadius="2" HorizontalAlignment="Left" Width="0"/></Grid>
+    <Border Background="#9C141D2B" BorderBrush="#303E55" BorderThickness="1" CornerRadius="12" Padding="14,9" Margin="0,0,0,8">
+     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <StackPanel VerticalAlignment="Center"><TextBlock Text="STUDIO ACTIVATION" Foreground="#7A93AF" FontSize="9" FontWeight="SemiBold"/><TextBlock Text="LIGHT SEQUENCE" Foreground="#526883" FontSize="8" Margin="0,4,0,0"/></StackPanel>
+      <UniformGrid x:Name="BootSegments" Grid.Column="1" Columns="18" Height="22" Margin="20,0,20,0" VerticalAlignment="Center"/>
+      <Canvas x:Name="DigitalMeter" Grid.Column="2" Width="100" Height="34" VerticalAlignment="Center" ToolTip="Visual studio activation progress"/>
+     </Grid>
+    </Border>
+    <UniformGrid Columns="3">
+     <Border Margin="0,0,5,0" Padding="12,10" Background="#99172230" BorderBrush="#303D52" BorderThickness="1" CornerRadius="10"><StackPanel><TextBlock Text="PHYSICAL INPUT" FontSize="9" Foreground="#6E85A2"/><StackPanel Orientation="Horizontal" Margin="0,7,0,0"><Ellipse x:Name="InputLamp" Width="5" Height="5" Fill="#4A5263" Margin="0,0,7,0"/><TextBlock x:Name="InputStatus" Text="No controller connected" FontSize="11"/></StackPanel></StackPanel></Border>
+     <Border Margin="3,0,3,0" Padding="12,10" Background="#99172230" BorderBrush="#303D52" BorderThickness="1" CornerRadius="10"><StackPanel><TextBlock Text="VIRTUAL OUTPUT" FontSize="9" Foreground="#6E85A2"/><StackPanel Orientation="Horizontal" Margin="0,7,0,0"><Ellipse x:Name="XboxLamp" Width="5" Height="5" Fill="#4A5263" Margin="0,0,7,0"/><TextBlock x:Name="XboxStatus" Text="Not connected" FontSize="11"/></StackPanel></StackPanel></Border>
+     <Border Margin="5,0,0,0" Padding="12,10" Background="#99172230" BorderBrush="#303D52" BorderThickness="1" CornerRadius="10"><StackPanel><TextBlock Text="RUMBLE BACKEND" FontSize="9" Foreground="#6E85A2"/><StackPanel Orientation="Horizontal" Margin="0,7,0,0"><Ellipse x:Name="RumbleLamp" Width="5" Height="5" Fill="#4A5263" Margin="0,0,7,0"/><TextBlock x:Name="RumbleStatus" Text="Unavailable" FontSize="11"/></StackPanel></StackPanel></Border>
+    </UniformGrid>
+   </StackPanel>
+  </Grid>
+ </Grid>
+</UserControl>

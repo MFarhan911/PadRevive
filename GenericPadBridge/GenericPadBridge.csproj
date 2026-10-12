@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained><RuntimeFrameworkVersion>10.0.12</RuntimeFrameworkVersion>
+    <PublishSingleFile>true</PublishSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishTrimmed>false</PublishTrimmed><DebugType>embedded</DebugType>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>GenericPadBridge</AssemblyName><Version>0.12.0-beta.2</Version>
+    <AssemblyVersion>0.12.0.0</AssemblyVersion><FileVersion>0.12.0.0</FileVersion><InformationalVersion>0.12.0-beta.2</InformationalVersion>
+    <AssemblyTitle>PadRevive Controller Studio</AssemblyTitle><Product>PadRevive</Product><Description>Controller tools for budget gamers. Powered by GenericPadBridge.</Description>
+    <ApplicationIcon>Assets/GenericPadBridge.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- WPF owns startup and DPI awareness; WinForms is used only for the tray. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms"/><Using Remove="System.Drawing"/>
+    <EmbeddedResource Include="Assets/GenericPadBridge.ico" LogicalName="GenericPadBridge.TrayIcon"/>
+    <EmbeddedResource Include="../LICENSE" LogicalName="GenericPadBridge.License"/>
+    <Resource Include="Assets/*-v9.png"/>
+    <EmbeddedResource Include="../THIRD-PARTY-NOTICES.txt" LogicalName="GenericPadBridge.Notices"/>
+    <Reference Include="LibTessDotNet"><HintPath>lib/LibTessDotNet.dll</HintPath></Reference>
+    <Reference Include="SharpDX"><HintPath>lib/SharpDX.dll</HintPath></Reference>
+    <Reference Include="SharpDX.DirectInput"><HintPath>lib/SharpDX.DirectInput.dll</HintPath></Reference>
+    <Reference Include="Nefarius.ViGEm.Client"><HintPath>lib/Nefarius.ViGEm.Client.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>
