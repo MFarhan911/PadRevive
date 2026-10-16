@@ -20,7 +20,6 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TAG: v0.12.0-beta.3
-      PADREVIVE_WORKFLOW_PREVIEW: ${{ runner.temp }}/padrevive-previews
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
@@ -32,6 +31,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $padReviveHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/$env:GITHUB_REF_NAME" --jq .object.sha
           if ($LASTEXITCODE -ne 0 -or $padReviveHead -ne $env:GITHUB_SHA) { throw 'This one-time publication is no longer current. Use the existing release.' }
+          "PADREVIVE_WORKFLOW_PREVIEW=$env:RUNNER_TEMP/padrevive-previews" >> $env:GITHUB_ENV
       - name: Validate new features
         shell: pwsh
         run: |
