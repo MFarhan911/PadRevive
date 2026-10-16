@@ -56,5 +56,22 @@ public static class ReviveChecks
   recorder.Observe(111,profile,Raw(),null,null,false,false,(0,0),(0,0),false);check(!recorder.Recording,"trace capture ends after ten seconds");
   var invalidTrace=new InputTrace{Hardware=identity,Profiles=[profile],Frames=[new(double.NaN,null,0,null,null,false,false,0,0,0,0,false)]};reject(invalidTrace.Validate,"imported trace refuses invalid timeline values");
   var serializedProfile=JsonSerializer.Deserialize<MappingProfile>("{\"Buttons\":[\"A\"]}",ProfileData.Json)!;serializedProfile.Validate();check(!serializedProfile.LeftRescue.Enabled&&!serializedProfile.StrongResponse.Enabled,"old profiles remain compatible with inactive new correction defaults");
+  check(serializedProfile.LeftSensitivity==1&&serializedProfile.RightSensitivity==1,"old profiles retain the original 100% sensitivity on both sticks");
+  var sensitivity=new MappingProfile{Deadzone=0};var half=Raw(49151,16384);var normal=Mapper.Map(sensitivity,half);
+  sensitivity.LeftSensitivity=.5;sensitivity.RightSensitivity=2;var slower=Mapper.Map(sensitivity,half);
+  check(Math.Abs(slower.LX-normal.LX*.5)<=1&&Math.Abs(slower.LY-normal.LY*.5)<=1,"left sensitivity scales both axes after inversion");
+  check(slower.RX==0&&slower.RY==0&&half.Axes[AxisSource.X]==49151,"sensitivity preserves physical samples and neutral right stick");
+  var both=half with{Axes=new Dictionary<AxisSource,int>{{AxisSource.X,49151},{AxisSource.Y,16384},{AxisSource.RotationX,49151},{AxisSource.RotationY,16384}}};var independent=Mapper.Map(sensitivity,both);
+  check(independent.RX>32000&&independent.RY>32000&&independent.LX<9000,"independent right sensitivity responds faster without altering the left setting");
+  var low=Mapper.Map(sensitivity,Raw(0,65535));check(low.LX==-16384&&low.LY==-16384,"reduced sensitivity has symmetric signed endpoints");
+  sensitivity.LeftSensitivity=2;var positive=Mapper.Map(sensitivity,Raw(65535,0));var negative=Mapper.Map(sensitivity,Raw(0,65535));
+  check(positive.LX==short.MaxValue&&positive.LY==short.MaxValue&&negative.LX==short.MinValue&&negative.LY==short.MinValue,"high sensitivity saturates without overflow or sign reversal");
+  sensitivity.Deadzone=.08;check(Mapper.Map(sensitivity,Raw(34000,32000)).LX==0&&Mapper.Map(sensitivity,Raw(34000,32000)).LY==0,"sensitivity does not amplify values inside the deadzone");
+  sensitivity.LeftSensitivity=.25;sensitivity.RightSensitivity=1.75;var savedSensitivity=ProfileData.Clone(sensitivity);savedSensitivity.Validate();
+  check(savedSensitivity.LeftSensitivity==.25&&savedSensitivity.RightSensitivity==1.75,"independent sensitivities survive profile serialization and cloning");
+  foreach(double invalidValue in new[]{0,.249,2.001,double.NaN,double.PositiveInfinity}){reject(()=>new MappingProfile{LeftSensitivity=invalidValue}.Validate(),"left sensitivity rejects invalid imported value "+invalidValue);reject(()=>new MappingProfile{RightSensitivity=invalidValue}.Validate(),"right sensitivity rejects invalid imported value "+invalidValue);}
+  p.LeftSensitivity=.5;p.LeftX=AxisSource.X;p.LeftRescue=correction;var rescuedHalf=Mapper.Map(p,Raw((int)(correction.CentreX+.65*32767.5),(int)correction.CentreY));
+  check(rescuedHalf.LX>16000&&rescuedHalf.LX<=16384,"sensitivity applies after directional Rescue correction");
+  reject(capture.BeginSweep,"a finished rescue cannot restart its sweep and corrupt the capture");
  }
 }

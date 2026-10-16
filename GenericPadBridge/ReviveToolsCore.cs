@@ -50,6 +50,7 @@ public sealed class RescueCapture
  }
  public void BeginSweep()
  {
+  if(Finished||Sweeping)throw new InvalidOperationException("The rim sweep has already started. Build the preview, or cancel and start a new capture.");
   if(idle.Count<40)throw new InvalidOperationException("Leave the stick untouched for at least 40 bridge samples.");
   CentreX=idle.Average(p=>p.X);CentreY=idle.Average(p=>p.Y);
   if(idle.Max(p=>p.X)-idle.Min(p=>p.X)>8000||idle.Max(p=>p.Y)-idle.Min(p=>p.Y)>8000)throw new InvalidOperationException("The rest capture moved too much. Restart and leave the stick untouched.");

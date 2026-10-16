@@ -15,7 +15,7 @@ No other software I tried made my stick rumble. PadRevive is the only one that d
 ## Features
 
 - Live controller preview with moving sticks, button presses, trigger meters, and a clickable mapping dock.
-- Button remapping, guided setup, deadzones, and stick calibration.
+- Button remapping, guided setup, deadzones, independent left/right stick sensitivity, and stick calibration.
 - Rumble testing, motor strength controls, and game vibration passthrough on supported controllers.
 - Xbox 360 and DualShock 4 virtual output.
 - Two-player support, including shared arcade encoders.

@@ -28,6 +28,8 @@ public sealed class MappingProfile
     public bool InvertLeftX { get; set; }
     public bool InvertRightX { get; set; }
     public double Deadzone { get; set; } = .08;
+    public double LeftSensitivity { get; set; } = 1;
+    public double RightSensitivity { get; set; } = 1;
     public int PovIndex { get; set; } = 0;
     public bool ForwardRumble { get; set; } = true;
     public double StrongGain { get; set; } = 1;
@@ -58,6 +60,7 @@ public sealed class MappingProfile
         LeftTrigger.Validate();RightTrigger.Validate();
         if(!Enum.IsDefined(LeftX)||!Enum.IsDefined(LeftY)||!Enum.IsDefined(RightX)||!Enum.IsDefined(RightY))throw new InvalidDataException("Invalid axis source.");
         if(!double.IsFinite(Deadzone)||Deadzone<0||Deadzone>.5||PovIndex< -1||PovIndex>3)throw new InvalidDataException("Invalid deadzone or POV index.");
+        if(!double.IsFinite(LeftSensitivity)||LeftSensitivity<.25||LeftSensitivity>2||!double.IsFinite(RightSensitivity)||RightSensitivity<.25||RightSensitivity>2)throw new InvalidDataException("Stick sensitivity must be between 25% and 200%.");
         if(!double.IsFinite(StrongGain)||StrongGain<0||StrongGain>1||!double.IsFinite(WeakGain)||WeakGain<0||WeakGain>1||!new[]{"normal","swap","mono"}.Contains(Routing))throw new InvalidDataException("Invalid rumble settings.");
         if(!Enum.IsDefined(DpadX)||!Enum.IsDefined(DpadY)||!double.IsFinite(DpadThreshold)||DpadThreshold<.1||DpadThreshold>.95||Socd is not ("neutral" or "up-priority"))throw new InvalidDataException("Invalid arcade directions.");
         if(Calibration==null||Calibration.Count>8||Calibration.Any(a=>a.Key==AxisSource.None||!Enum.IsDefined(a.Key)||a.Value==null))throw new InvalidDataException("Invalid axis calibration.");
@@ -147,6 +150,8 @@ public static class Mapper
             return (Read(x,ix),Read(y,iy));
         }
         var left=Stick(p.LeftRescue,p.LeftX,p.LeftY,p.InvertLeftX,p.InvertLeftY);var right=Stick(p.RightRescue,p.RightX,p.RightY,p.InvertRightX,p.InvertRightY);
-        return new(buttons,left.X,left.Y,right.X,right.Y,lt,rt);
+        // Scale calibrated output, leaving the physical samples used by Rescue unchanged.
+        short Scale(short value,double sensitivity)=>(short)Math.Clamp((int)Math.Round(value*sensitivity),short.MinValue,short.MaxValue);
+        return new(buttons,Scale(left.X,p.LeftSensitivity),Scale(left.Y,p.LeftSensitivity),Scale(right.X,p.RightSensitivity),Scale(right.Y,p.RightSensitivity),lt,rt);
     }
 }

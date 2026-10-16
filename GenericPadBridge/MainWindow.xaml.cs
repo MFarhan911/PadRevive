@@ -141,6 +141,7 @@ public partial class MainWindow : Window
             LeftXSelect.SelectedItem=p.LeftX;LeftYSelect.SelectedItem=p.LeftY;RightXSelect.SelectedItem=p.RightX;RightYSelect.SelectedItem=p.RightY;
             InvertLeftY.IsChecked=p.InvertLeftY;InvertRightY.IsChecked=p.InvertRightY;DeadzoneSlider.Value=p.Deadzone;
             InvertLeftX.IsChecked=p.InvertLeftX;InvertRightX.IsChecked=p.InvertRightX;
+            LeftSensitivitySlider.Value=p.LeftSensitivity;RightSensitivitySlider.Value=p.RightSensitivity;
             LeftTriggerSource.SelectedItem=p.LeftTrigger.Source;RightTriggerSource.SelectedItem=p.RightTrigger.Source;
             ReverseLeftTrigger.IsChecked=p.LeftTrigger.Rest>p.LeftTrigger.Pressed;ReverseRightTrigger.IsChecked=p.RightTrigger.Rest>p.RightTrigger.Pressed;
             LeftCalibrationText.Text=$"Rest {p.LeftTrigger.Rest} · Full {p.LeftTrigger.Pressed}";RightCalibrationText.Text=$"Rest {p.RightTrigger.Rest} · Full {p.RightTrigger.Pressed}";
@@ -203,10 +204,21 @@ public partial class MainWindow : Window
         listening=false;if(LearnButton==null)return;LearnButton.Content="Press to select";
         if(LearnText!=null)LearnText.Text="Select a physical button or D-pad direction, then choose its output control.";
     }
-    private void UpdateLabels(){DeadzoneText.Text=$"Deadzone {bridge.Profile.Deadzone:P0}";StrongText.Text=$"Strong gain {bridge.Profile.StrongGain:P0}";WeakText.Text=$"Weak gain {bridge.Profile.WeakGain:P0}";}
+    private void UpdateLabels(){DeadzoneText.Text=$"Deadzone {bridge.Profile.Deadzone:P0}";StrongText.Text=$"Strong gain {bridge.Profile.StrongGain:P0}";WeakText.Text=$"Weak gain {bridge.Profile.WeakGain:P0}";LeftSensitivityText.Text=$"Sensitivity {bridge.Profile.LeftSensitivity:P0}";RightSensitivityText.Text=$"Sensitivity {bridge.Profile.RightSensitivity:P0}";}
+    private void Sensitivity_Changed(object sender,RoutedPropertyChangedEventArgs<double> e)
+    {
+        if(rendering||!bridge.Connected||bridge.Configuring)return;
+        bridge.Profile.LeftSensitivity=LeftSensitivitySlider.Value;bridge.Profile.RightSensitivity=RightSensitivitySlider.Value;UpdateLabels();Dirty();
+    }
+    private void ResetSensitivity_Click(object sender,RoutedEventArgs e)
+    {
+        if(!bridge.Connected||bridge.Configuring)return;
+        if((string)((Button)sender).Tag=="left")LeftSensitivitySlider.Value=1;else RightSensitivitySlider.Value=1;
+    }
     private void Display()
     {
         if(closing)return;ConnectionText.Text=bridge.Status;
+        LeftSensitivitySlider.IsEnabled=RightSensitivitySlider.IsEnabled=ResetLeftSensitivity.IsEnabled=ResetRightSensitivity.IsEnabled=bridge.Connected&&!bridge.Configuring;
         var input=bridge.Input;var output=bridge.Configuring||bridge.UiPaused?null:bridge.Output;
         foreach(var row in rows)row.Pressed=ControllerPresentation.Pressed(row.Source,input,bridge.Profile);
         PadView.Update(input,bridge.Profile);LiveFramesText.Text=input==null?"Waiting for input":$"{bridge.Frames:N0} frames";
@@ -378,7 +390,7 @@ public partial class MainWindow : Window
         if(setup==null)return;
         var learned=setup.Profile;var previous=bridge.Profile;
         learned.Name=(bridge.Device?.Name.Trim()??"Controller")+" · learned layout";
-        learned.Deadzone=previous.Deadzone;learned.ForwardRumble=previous.ForwardRumble;learned.StrongGain=previous.StrongGain;learned.WeakGain=previous.WeakGain;learned.Routing=previous.Routing;learned.Validate();
+        learned.Deadzone=previous.Deadzone;learned.LeftSensitivity=previous.LeftSensitivity;learned.RightSensitivity=previous.RightSensitivity;learned.ForwardRumble=previous.ForwardRumble;learned.StrongGain=previous.StrongGain;learned.WeakGain=previous.WeakGain;learned.Routing=previous.Routing;learned.Validate();
         bridge.Profile=learned;setup=null;bridge.Configuring=false;RenderSettings();Dirty();
         SetupStepText.Text="SETUP COMPLETE";SetupPromptText.Text="Your controller is mapped";SetupHintText.Text="Verify every control in Controller, then Save profile to keep the learned layout.";SetupProgress.Value=21;
         AcceptSetupButton.IsEnabled=SkipSetupButton.IsEnabled=CancelSetupButton.IsEnabled=false;StartSetupButton.IsEnabled=true;
