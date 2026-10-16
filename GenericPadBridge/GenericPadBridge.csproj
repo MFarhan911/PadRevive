@@ -7,8 +7,8 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <PublishTrimmed>false</PublishTrimmed><DebugType>embedded</DebugType>
     <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>GenericPadBridge</AssemblyName><Version>0.12.0-beta.2</Version>
-    <AssemblyVersion>0.12.0.0</AssemblyVersion><FileVersion>0.12.0.0</FileVersion><InformationalVersion>0.12.0-beta.2</InformationalVersion>
+    <AssemblyName>GenericPadBridge</AssemblyName><Version>0.12.0-beta.3</Version>
+    <AssemblyVersion>0.12.0.0</AssemblyVersion><FileVersion>0.12.0.4</FileVersion><InformationalVersion>0.12.0-beta.3</InformationalVersion>
     <AssemblyTitle>PadRevive Controller Studio</AssemblyTitle><Product>PadRevive</Product><Description>Controller tools for budget gamers. Powered by GenericPadBridge.</Description>
     <ApplicationIcon>Assets/GenericPadBridge.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>

@@ -20,7 +20,7 @@
    </Grid>
    <StackPanel Grid.RowSpan="3" VerticalAlignment="Top" Margin="150,64,150,0" IsHitTestVisible="False"><TextBlock x:Name="SplashName" Text="Press a controller button" FontSize="16" Height="24" FontWeight="SemiBold" TextAlignment="Center" TextTrimming="CharacterEllipsis"/><TextBlock x:Name="SplashDetail" Text="Every press gets its own sticker." Height="17" FontSize="10" Foreground="#869DB8" TextAlignment="Center" TextTrimming="CharacterEllipsis"/></StackPanel>
    <StackPanel Grid.Row="2" Panel.ZIndex="2"><Grid Margin="0,0,0,9"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="INDIVIDUAL CONTROLS" Foreground="#7E93AD" FontSize="9" FontWeight="SemiBold"/><TextBlock x:Name="Stats" Grid.Column="1" Text="0 presses · 0 held · 0 seen" FontSize="10" Foreground="#A0B6D0"/></Grid>
-    <ScrollViewer MaxHeight="58" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><WrapPanel x:Name="ControlCards"/></ScrollViewer>
+    <ScrollViewer x:Name="CardScroll" MaxHeight="116" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><WrapPanel x:Name="ControlCards"/></ScrollViewer>
     <TextBlock Text="Press your physical controls to count inputs. Click a card to preview its splash; previews send no controller input." FontSize="9" Foreground="#667F9D" Margin="0,6,0,0"/>
    </StackPanel>
   </Grid>

@@ -47,7 +47,7 @@ public partial class MainWindow
   try{if(File.Exists(CataloguePath)){catalogue=ProfileData.Read<ProfileCatalogue>(CataloguePath,4*1024*1024);catalogue.Validate();}}catch(Exception e){Message("Catalogue was not loaded: "+e.Message);catalogue=new();}
   try{if(File.Exists(RulesPath)){gameRules=ProfileData.Read<List<GameRule>>(RulesPath,4*1024*1024);if(gameRules.Count>128)throw new InvalidDataException("Too many game rules.");foreach(var rule in gameRules)rule.Validate();}}catch(Exception e){Message("Game rules were not loaded: "+e.Message);gameRules=[];}
   var tabs=new TabControl();referenceWorkbench=tabs;workbenchTab=new(){Header="Workbench",Content=tabs};MainTabs.Items.Insert(6,workbenchTab);
-  BuildArcade(tabs);BuildHealth(tabs);BuildProfiles(tabs);BuildAccess(tabs);BuildIntegrations(tabs);BuildReviveLab(tabs);
+  BuildArcade(tabs);BuildHealth(tabs);BuildProfiles(tabs);BuildAccess(tabs);BuildIntegrations(tabs);BuildReviveLab(tabs);BuildLatencyMonitor(tabs);
   workbenchReady=true;RefreshWorkbench();CreateTray();
  }
  private void BuildArcade(TabControl tabs)
@@ -200,8 +200,8 @@ public partial class MainWindow
  private void Player_Changed(object sender,SelectionChangedEventArgs e)
  {
   if(!IsLoaded||PlayerSelect.SelectedIndex<0||PlayerSelect.SelectedIndex==sessions.ActiveIndex)return;
-  CancelListening();CancelSetup();CancelArcadeLearn();bridge.CancelTest();if(navigationPaused){bridge.UiPaused=false;navigationPaused=false;}sessions.ActiveIndex=PlayerSelect.SelectedIndex;previousInput=null;selected=null;previewProfile=null;navigationPrevious=null;
-  TestPanel.BindSession(sessions.Active.Test);if(motorCurve!=null){labRendering=true;motorCurve.Value=MotorDraft.Exponent;labRendering=false;}outputRendering=true;OutputSelect.SelectedValue=bridge.OutputController;outputRendering=false;RefreshTargetChoices();RenderSettings();SaveText.Text=sessions.Active.Dirty?"Unsaved changes · Save profile to keep them.":"Selected player's independent profile.";Rescan(false);Display();RefreshWorkbench();Message($"Editing Player {sessions.ActiveIndex+1}. Both connected players remain active.");
+  CancelListening();CancelSetup();CancelArcadeLearn();bridge.CancelTest();aiRequest?.Cancel();if(navigationPaused){bridge.UiPaused=false;navigationPaused=false;}sessions.ActiveIndex=PlayerSelect.SelectedIndex;previousInput=null;selected=null;previewProfile=null;navigationPrevious=null;
+  TestPanel.BindSession(sessions.Active.Test);if(motorCurve!=null){labRendering=true;motorCurve.Value=MotorDraft.Exponent;labRendering=false;}outputRendering=true;OutputSelect.SelectedValue=bridge.OutputController;outputRendering=false;RefreshTargetChoices();RenderSettings();SaveText.Text=sessions.Active.Dirty?"Unsaved changes · Save profile to keep them.":"Selected player's independent profile.";Rescan(false);Display();RefreshWorkbench();RefreshAiPlayer();Message($"Editing Player {sessions.ActiveIndex+1}. Both connected players remain active.");
  }
  private void SharedEncoder_Changed(object sender,RoutedEventArgs e)
  {
@@ -260,7 +260,7 @@ public partial class MainWindow
   if(IsActive||setup!=null||arcadeLearn!=null)return;
   foreach(var p in sessions.Players)
   {
-   if(!p.Bridge.Connected||p.Bridge.ExperimentalOutput)continue;var rule=gameRules.FirstOrDefault(r=>r.Player==p.Number-1&&(r.Fingerprint.Length==0||r.Fingerprint==p.Fingerprint)&&string.Equals(r.Executable,executable,StringComparison.OrdinalIgnoreCase));string wanted=rule?.Executable??"";if(wanted==p.ActiveGame)continue;
+   if(!p.Bridge.Connected||p.Bridge.Configuring||p.Bridge.ExperimentalOutput)continue;var rule=gameRules.FirstOrDefault(r=>r.Player==p.Number-1&&(r.Fingerprint.Length==0||r.Fingerprint==p.Fingerprint)&&string.Equals(r.Executable,executable,StringComparison.OrdinalIgnoreCase));string wanted=rule?.Executable??"";if(wanted==p.ActiveGame)continue;
    try
    {
     p.InputsConfirmed=false;if(p.GameBaseline!=null){p.Bridge.Profile=ProfileData.Clone(p.GameBaseline);p.Bridge.SelectOutput(p.BaselineOutput);p.GameBaseline=null;p.ActiveGame="";}
@@ -299,5 +299,5 @@ public partial class MainWindow
  }
  private void ShowStudio(){Show();WindowState=WindowState.Normal;Activate();PadView.SetSuspended(!Dashboard.ShowingTools);}
  private void WindowModeChanged(){bool hidden=WindowState==WindowState.Minimized;PadView.SetSuspended(hidden||!Dashboard.ShowingTools);if(hidden){Intro.Skip();if(studio.MinimiseToTray&&trayIcon!=null)Hide();}else if(workbenchReady)RefreshWorkbench();}
- private void DisposeWorkbench(){CancelLabCapture(true);trayIcon?.Dispose();notificationIcon?.Dispose();playback.Dispose();DesktopControl.ResetPointer();}
+ private void DisposeWorkbench(){DisposeAi();CancelLabCapture(true);trayIcon?.Dispose();notificationIcon?.Dispose();playback.Dispose();DesktopControl.ResetPointer();}
 }

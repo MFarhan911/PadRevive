@@ -93,7 +93,7 @@ public sealed class ReferenceDashboard : UserControl
         var grid=new Grid{Background=Ink("#051723")};grid.ColumnDefinitions.Add(new());grid.ColumnDefinitions.Add(new(){Width=new(310)});
         var brand=new StackPanel{Orientation=Orientation.Horizontal,Margin=new(24,12,0,9),VerticalAlignment=VerticalAlignment.Center};
         brand.Children.Add(GamepadIcon(58,true));
-        var copy=new StackPanel{Margin=new(16,0,0,0)};var line=new StackPanel{Orientation=Orientation.Horizontal};line.Children.Add(Label("PadRevive",31,true));var version=Label("0.12.0 Beta 2",18);version.Margin=new(20,7,0,0);line.Children.Add(version);copy.Children.Add(line);copy.Children.Add(Label("Revive Your Gamepad. Play Without Limits.",16,false,"#B8CBE7"));brand.Children.Add(copy);grid.Children.Add(brand);
+        var copy=new StackPanel{Margin=new(16,0,0,0)};var line=new StackPanel{Orientation=Orientation.Horizontal};line.Children.Add(Label("PadRevive",31,true));var version=Label("0.12.0 Beta 3",18);version.Margin=new(20,7,0,0);line.Children.Add(version);copy.Children.Add(line);copy.Children.Add(Label("Revive Your Gamepad. Play Without Limits.",16,false,"#B8CBE7"));brand.Children.Add(copy);grid.Children.Add(brand);
         var drag=new Border{Background=Brushes.Transparent};grid.Children.Add(drag);drag.MouseLeftButtonDown+=(_,e)=>ActionRequested?.Invoke(e.ClickCount==2?"Maximize":"Drag");
         var right=new Grid{Margin=new(0,2,5,8)};right.RowDefinitions.Add(new(){Height=new(32)});right.RowDefinitions.Add(new());At(right,grid,0,1);
         var caption=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};

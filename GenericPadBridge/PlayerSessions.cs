@@ -5,6 +5,9 @@ public sealed class PlayerSession : IDisposable
  public ControllerChoice? Remembered {get;set;} public MappingProfile? ReconnectProfile {get;set;} public MappingProfile? GameBaseline {get;set;} public EmulatedController BaselineOutput {get;set;}
  public string ActiveGame {get;set;}="";public bool Reconnect {get;set;}=true;public bool MotorsConfirmed {get;set;}public PlayerSession(int number){Number=number;}
  public RescueCapture? Rescue {get;set;}public MappingProfile? RescuePreview {get;set;}public bool RescueRight {get;set;}
+ public DriftLearningCapture? AiDriftCapture {get;set;}public MappingProfile? AiDriftPreview {get;set;}public MappingProfile? AiUndoProfile {get;set;}public DriftLearningSummary? AiDriftSummary {get;set;}public bool AiDriftRight {get;set;}
+ public string AiAdvice {get;set;}="";
+ public string AiAppliedProfileHash {get;set;}="";
  public CloneChallenge? Challenge {get;set;}public CombinationAudit? Audit {get;set;}
  public TraceRecorder Recorder {get;}=new();public string LabMessage {get;set;}="";
  public bool LabOwnsConfiguring {get;set;}public string LabHardware {get;set;}="";

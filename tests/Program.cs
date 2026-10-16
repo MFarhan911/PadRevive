@@ -434,4 +434,5 @@ await using(var fixture=new ViiperTestServer())
  transport.Dispose();await Task.Delay(180);Check(fixture.Reports.Last().All(b=>b==0),"VIIPER teardown flushes neutral output before closing the stream");Check(fixture.Requests.Contains("bus/41/remove 7")&&fixture.Requests.Contains("bus/remove 41"),"VIIPER teardown deletes only its owned device and bus");
  bool rejected=false;try{using var c=new CancellationTokenSource(TimeSpan.FromSeconds(1));await ViiperDevice.Request("invalid",c.Token,fixture.Port);}catch(System.IO.IOException){rejected=true;}Check(rejected,"VIIPER RPC error cannot be mistaken for a successful device");
 }
+await AiChecks.Run(Check,Reject);
 Console.WriteLine($"{checks} checks passed. No hardware APIs were invoked.");

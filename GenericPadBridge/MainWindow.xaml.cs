@@ -86,7 +86,7 @@ public partial class MainWindow : Window
     }
     public void EmergencyStop(){CancelListening();CancelSetup();CancelArcadeLearn();sessions.Stop();Display();Message("Both players stopped. Reconnect to resume.");}
     private void Message(string text){FooterText.Text=text;if(referenceReady&&IsLoaded)ReferenceNotice(text);}
-    private void Dirty(){sessions.Active.Recorder.ProfileChanged(bridge.Profile);sessions.Active.RescuePreview=null;previewProfile=null;sessions.Active.InputsConfirmed=false;sessions.Active.Dirty=true;bridge.ResetModifiers();sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);SaveText.Text="Unsaved changes · Save profile to keep them.";}
+    private void Dirty(){sessions.Active.Recorder.ProfileChanged(bridge.Profile);sessions.Active.RescuePreview=null;sessions.Active.AiDriftPreview=null;sessions.Active.AiUndoProfile=null;sessions.Active.AiAppliedProfileHash="";previewProfile=null;sessions.Active.InputsConfirmed=false;sessions.Active.Dirty=true;bridge.ResetModifiers();sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);SaveText.Text="Unsaved changes · Save profile to keep them.";}
     private void Rescan(bool auto)
     {
         try
@@ -108,7 +108,7 @@ public partial class MainWindow : Window
         TestPanel.Reset();
         try
         {
-            sessions.Check(choice);bridge.Connect(choice,new WindowInteropHelper(this).Handle,sessions.PrepareMotors(sessions.Active,choice));sessions.Active.GameBaseline=null;sessions.Active.ActiveGame="";sessions.Active.Remembered=choice;sessions.Active.Health=new();sessions.Active.LabBlockedBy=0;sessions.Active.Rescue=null;sessions.Active.RescuePreview=null;sessions.Active.Challenge=null;sessions.Active.Audit=null;sessions.Active.Recorder.Stop();sessions.Active.LabMessage="";sessions.Active.Dirty=false;sessions.Active.InputsConfirmed=false;sessions.Active.MotorsConfirmed=false;
+            sessions.Check(choice);bridge.Connect(choice,new WindowInteropHelper(this).Handle,sessions.PrepareMotors(sessions.Active,choice));sessions.Active.GameBaseline=null;sessions.Active.ActiveGame="";sessions.Active.Remembered=choice;sessions.Active.Health=new();sessions.Active.LabBlockedBy=0;sessions.Active.Rescue=null;sessions.Active.RescuePreview=null;sessions.Active.AiDriftCapture=null;sessions.Active.AiDriftPreview=null;sessions.Active.AiUndoProfile=null;sessions.Active.AiAppliedProfileHash="";sessions.Active.AiDriftSummary=null;sessions.Active.AiAdvice="";sessions.Active.Challenge=null;sessions.Active.Audit=null;sessions.Active.Recorder.Stop();sessions.Active.LabMessage="";sessions.Active.Dirty=false;sessions.Active.InputsConfirmed=false;sessions.Active.MotorsConfirmed=false;
             if(File.Exists(ProfilePath))
             {
                 try{var p=JsonSerializer.Deserialize<MappingProfile>(File.ReadAllText(ProfilePath),Json)??throw new InvalidDataException("Profile was empty.");p.Validate();bridge.Profile=p;SaveText.Text="Saved profile loaded.";}
@@ -122,7 +122,7 @@ public partial class MainWindow : Window
                 else SaveText.Text=matches.Length>1?"Multiple confirmed profiles match. Choose one in Workbench.":"Starter preset loaded. Verify controls, then Save profile.";
             }
             sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);ResetMotorDrafts();RenderSettings();Display();timer.Start();RefreshWorkbench();
-            Message("Press your controller to see live input. Click a control to remap it; use Setup for an unfamiliar layout.");
+            RefreshAiPlayer();Message("Press your controller to see live input. Click a control to remap it; use Setup for an unfamiliar layout.");
         }
         catch(Exception e){Message("Connect failed: "+e.Message);Display();}
     }
@@ -141,6 +141,7 @@ public partial class MainWindow : Window
             LeftXSelect.SelectedItem=p.LeftX;LeftYSelect.SelectedItem=p.LeftY;RightXSelect.SelectedItem=p.RightX;RightYSelect.SelectedItem=p.RightY;
             InvertLeftY.IsChecked=p.InvertLeftY;InvertRightY.IsChecked=p.InvertRightY;DeadzoneSlider.Value=p.Deadzone;
             InvertLeftX.IsChecked=p.InvertLeftX;InvertRightX.IsChecked=p.InvertRightX;
+            LeftSensitivitySlider.Value=p.LeftSensitivity;RightSensitivitySlider.Value=p.RightSensitivity;
             LeftTriggerSource.SelectedItem=p.LeftTrigger.Source;RightTriggerSource.SelectedItem=p.RightTrigger.Source;
             ReverseLeftTrigger.IsChecked=p.LeftTrigger.Rest>p.LeftTrigger.Pressed;ReverseRightTrigger.IsChecked=p.RightTrigger.Rest>p.RightTrigger.Pressed;
             LeftCalibrationText.Text=$"Rest {p.LeftTrigger.Rest} · Full {p.LeftTrigger.Pressed}";RightCalibrationText.Text=$"Rest {p.RightTrigger.Rest} · Full {p.RightTrigger.Pressed}";
@@ -203,10 +204,21 @@ public partial class MainWindow : Window
         listening=false;if(LearnButton==null)return;LearnButton.Content="Press to select";
         if(LearnText!=null)LearnText.Text="Select a physical button or D-pad direction, then choose its output control.";
     }
-    private void UpdateLabels(){DeadzoneText.Text=$"Deadzone {bridge.Profile.Deadzone:P0}";StrongText.Text=$"Strong gain {bridge.Profile.StrongGain:P0}";WeakText.Text=$"Weak gain {bridge.Profile.WeakGain:P0}";}
+    private void UpdateLabels(){DeadzoneText.Text=$"Deadzone {bridge.Profile.Deadzone:P0}";StrongText.Text=$"Strong gain {bridge.Profile.StrongGain:P0}";WeakText.Text=$"Weak gain {bridge.Profile.WeakGain:P0}";LeftSensitivityText.Text=$"Sensitivity {bridge.Profile.LeftSensitivity:P0}";RightSensitivityText.Text=$"Sensitivity {bridge.Profile.RightSensitivity:P0}";}
+    private void Sensitivity_Changed(object sender,RoutedPropertyChangedEventArgs<double> e)
+    {
+        if(rendering||!bridge.Connected||bridge.Configuring)return;
+        bridge.Profile.LeftSensitivity=LeftSensitivitySlider.Value;bridge.Profile.RightSensitivity=RightSensitivitySlider.Value;UpdateLabels();Dirty();
+    }
+    private void ResetSensitivity_Click(object sender,RoutedEventArgs e)
+    {
+        if(!bridge.Connected||bridge.Configuring)return;
+        if((string)((Button)sender).Tag=="left")LeftSensitivitySlider.Value=1;else RightSensitivitySlider.Value=1;
+    }
     private void Display()
     {
         if(closing)return;ConnectionText.Text=bridge.Status;
+        LeftSensitivitySlider.IsEnabled=RightSensitivitySlider.IsEnabled=ResetLeftSensitivity.IsEnabled=ResetRightSensitivity.IsEnabled=bridge.Connected&&!bridge.Configuring;
         var input=bridge.Input;var output=bridge.Configuring||bridge.UiPaused?null:bridge.Output;
         foreach(var row in rows)row.Pressed=ControllerPresentation.Pressed(row.Source,input,bridge.Profile);
         PadView.Update(input,bridge.Profile);LiveFramesText.Text=input==null?"Waiting for input":$"{bridge.Frames:N0} frames";
@@ -378,7 +390,7 @@ public partial class MainWindow : Window
         if(setup==null)return;
         var learned=setup.Profile;var previous=bridge.Profile;
         learned.Name=(bridge.Device?.Name.Trim()??"Controller")+" · learned layout";
-        learned.Deadzone=previous.Deadzone;learned.ForwardRumble=previous.ForwardRumble;learned.StrongGain=previous.StrongGain;learned.WeakGain=previous.WeakGain;learned.Routing=previous.Routing;learned.Validate();
+        learned.Deadzone=previous.Deadzone;learned.LeftSensitivity=previous.LeftSensitivity;learned.RightSensitivity=previous.RightSensitivity;learned.ForwardRumble=previous.ForwardRumble;learned.StrongGain=previous.StrongGain;learned.WeakGain=previous.WeakGain;learned.Routing=previous.Routing;learned.Validate();
         bridge.Profile=learned;setup=null;bridge.Configuring=false;RenderSettings();Dirty();
         SetupStepText.Text="SETUP COMPLETE";SetupPromptText.Text="Your controller is mapped";SetupHintText.Text="Verify every control in Controller, then Save profile to keep the learned layout.";SetupProgress.Value=21;
         AcceptSetupButton.IsEnabled=SkipSetupButton.IsEnabled=CancelSetupButton.IsEnabled=false;StartSetupButton.IsEnabled=true;
@@ -397,7 +409,7 @@ public partial class MainWindow : Window
         var dialog=new Microsoft.Win32.OpenFileDialog{Filter="Controller profile (*.json)|*.json"};if(dialog.ShowDialog(this)!=true)return;
         try{if(new FileInfo(dialog.FileName).Length>1024*1024)throw new InvalidDataException("Profile exceeds 1 MB.");var p=JsonSerializer.Deserialize<MappingProfile>(File.ReadAllText(dialog.FileName),Json)??throw new InvalidDataException("Empty profile.");p.Validate();bridge.StopMotors();bridge.Profile=p;RenderSettings();Dirty();Message("Profile imported. Verify every control, then Save profile to keep it.");}catch(Exception error){Message("Import failed: "+error.Message);}
     }
-    private void RefreshDiagnostics()=>DiagnosticsBox.Text=JsonSerializer.Serialize(new{App="PadRevive 0.12.0 Beta 2",ActivePlayer=sessions.ActiveIndex+1,SharedEncoder=sessions.SharedEncoder,Players=sessions.Players.Select(p=>new{p.Number,p.MotorsConfirmed,p.ActiveGame,Bridge=p.Bridge.Diagnostics()}),ReleaseChannel="public-beta"},Json);
+    private void RefreshDiagnostics()=>DiagnosticsBox.Text=JsonSerializer.Serialize(new{App="PadRevive 0.12.0 Beta 3",ActivePlayer=sessions.ActiveIndex+1,SharedEncoder=sessions.SharedEncoder,Players=sessions.Players.Select(p=>new{p.Number,p.MotorsConfirmed,p.ActiveGame,Bridge=p.Bridge.Diagnostics()}),ReleaseChannel="public-beta"},Json);
     private void RefreshDiagnostics_Click(object sender,RoutedEventArgs e)=>RefreshDiagnostics();
     private void Diagnostics_Click(object sender,RoutedEventArgs e)
     {
