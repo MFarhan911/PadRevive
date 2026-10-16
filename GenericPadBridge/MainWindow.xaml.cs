@@ -86,7 +86,7 @@ public partial class MainWindow : Window
     }
     public void EmergencyStop(){CancelListening();CancelSetup();CancelArcadeLearn();sessions.Stop();Display();Message("Both players stopped. Reconnect to resume.");}
     private void Message(string text){FooterText.Text=text;if(referenceReady&&IsLoaded)ReferenceNotice(text);}
-    private void Dirty(){sessions.Active.Recorder.ProfileChanged(bridge.Profile);sessions.Active.RescuePreview=null;previewProfile=null;sessions.Active.InputsConfirmed=false;sessions.Active.Dirty=true;bridge.ResetModifiers();sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);SaveText.Text="Unsaved changes · Save profile to keep them.";}
+    private void Dirty(){sessions.Active.Recorder.ProfileChanged(bridge.Profile);sessions.Active.RescuePreview=null;sessions.Active.AiDriftPreview=null;sessions.Active.AiUndoProfile=null;sessions.Active.AiAppliedProfileHash="";previewProfile=null;sessions.Active.InputsConfirmed=false;sessions.Active.Dirty=true;bridge.ResetModifiers();sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);SaveText.Text="Unsaved changes · Save profile to keep them.";}
     private void Rescan(bool auto)
     {
         try
@@ -108,7 +108,7 @@ public partial class MainWindow : Window
         TestPanel.Reset();
         try
         {
-            sessions.Check(choice);bridge.Connect(choice,new WindowInteropHelper(this).Handle,sessions.PrepareMotors(sessions.Active,choice));sessions.Active.GameBaseline=null;sessions.Active.ActiveGame="";sessions.Active.Remembered=choice;sessions.Active.Health=new();sessions.Active.LabBlockedBy=0;sessions.Active.Rescue=null;sessions.Active.RescuePreview=null;sessions.Active.Challenge=null;sessions.Active.Audit=null;sessions.Active.Recorder.Stop();sessions.Active.LabMessage="";sessions.Active.Dirty=false;sessions.Active.InputsConfirmed=false;sessions.Active.MotorsConfirmed=false;
+            sessions.Check(choice);bridge.Connect(choice,new WindowInteropHelper(this).Handle,sessions.PrepareMotors(sessions.Active,choice));sessions.Active.GameBaseline=null;sessions.Active.ActiveGame="";sessions.Active.Remembered=choice;sessions.Active.Health=new();sessions.Active.LabBlockedBy=0;sessions.Active.Rescue=null;sessions.Active.RescuePreview=null;sessions.Active.AiDriftCapture=null;sessions.Active.AiDriftPreview=null;sessions.Active.AiUndoProfile=null;sessions.Active.AiAppliedProfileHash="";sessions.Active.AiDriftSummary=null;sessions.Active.AiAdvice="";sessions.Active.Challenge=null;sessions.Active.Audit=null;sessions.Active.Recorder.Stop();sessions.Active.LabMessage="";sessions.Active.Dirty=false;sessions.Active.InputsConfirmed=false;sessions.Active.MotorsConfirmed=false;
             if(File.Exists(ProfilePath))
             {
                 try{var p=JsonSerializer.Deserialize<MappingProfile>(File.ReadAllText(ProfilePath),Json)??throw new InvalidDataException("Profile was empty.");p.Validate();bridge.Profile=p;SaveText.Text="Saved profile loaded.";}
@@ -122,7 +122,7 @@ public partial class MainWindow : Window
                 else SaveText.Text=matches.Length>1?"Multiple confirmed profiles match. Choose one in Workbench.":"Starter preset loaded. Verify controls, then Save profile.";
             }
             sessions.Active.ReconnectProfile=ProfileData.Clone(bridge.Profile);ResetMotorDrafts();RenderSettings();Display();timer.Start();RefreshWorkbench();
-            Message("Press your controller to see live input. Click a control to remap it; use Setup for an unfamiliar layout.");
+            RefreshAiPlayer();Message("Press your controller to see live input. Click a control to remap it; use Setup for an unfamiliar layout.");
         }
         catch(Exception e){Message("Connect failed: "+e.Message);Display();}
     }
@@ -409,7 +409,7 @@ public partial class MainWindow : Window
         var dialog=new Microsoft.Win32.OpenFileDialog{Filter="Controller profile (*.json)|*.json"};if(dialog.ShowDialog(this)!=true)return;
         try{if(new FileInfo(dialog.FileName).Length>1024*1024)throw new InvalidDataException("Profile exceeds 1 MB.");var p=JsonSerializer.Deserialize<MappingProfile>(File.ReadAllText(dialog.FileName),Json)??throw new InvalidDataException("Empty profile.");p.Validate();bridge.StopMotors();bridge.Profile=p;RenderSettings();Dirty();Message("Profile imported. Verify every control, then Save profile to keep it.");}catch(Exception error){Message("Import failed: "+error.Message);}
     }
-    private void RefreshDiagnostics()=>DiagnosticsBox.Text=JsonSerializer.Serialize(new{App="PadRevive 0.12.0 Beta 2",ActivePlayer=sessions.ActiveIndex+1,SharedEncoder=sessions.SharedEncoder,Players=sessions.Players.Select(p=>new{p.Number,p.MotorsConfirmed,p.ActiveGame,Bridge=p.Bridge.Diagnostics()}),ReleaseChannel="public-beta"},Json);
+    private void RefreshDiagnostics()=>DiagnosticsBox.Text=JsonSerializer.Serialize(new{App="PadRevive 0.12.0 Beta 3",ActivePlayer=sessions.ActiveIndex+1,SharedEncoder=sessions.SharedEncoder,Players=sessions.Players.Select(p=>new{p.Number,p.MotorsConfirmed,p.ActiveGame,Bridge=p.Bridge.Diagnostics()}),ReleaseChannel="public-beta"},Json);
     private void RefreshDiagnostics_Click(object sender,RoutedEventArgs e)=>RefreshDiagnostics();
     private void Diagnostics_Click(object sender,RoutedEventArgs e)
     {

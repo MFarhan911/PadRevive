@@ -18,13 +18,14 @@ internal static class WorkflowTests
   yield return root;
   foreach(var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())foreach(var descendant in Tree(child))yield return descendant;
  }
+ private static IEnumerable<DependencyObject> Visuals(DependencyObject root){yield return root;for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)foreach(var child in Visuals(VisualTreeHelper.GetChild(root,i)))yield return child;}
  [STAThread]
  private static int Main()
  {
   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};MainWindow? window=null;
   try
   {
-   window=new MainWindow();Call(window,"BuildReviveLab",new TabControl());var lab=Field<TabControl>(window,"labTabs");var sessions=Field<PlayerSessions>(window,"sessions");var owner=sessions.Active;var bridge=owner.Bridge;
+   window=new MainWindow();var workbench=new TabControl();foreach(string builder in new[]{"BuildArcade","BuildHealth","BuildProfiles","BuildAccess","BuildIntegrations"})Call(window,builder,workbench);Call(window,"BuildReviveLab",workbench);Call(window,"BuildLatencyMonitor",workbench);var workbenchPage=new TabItem{Header="Workbench",Content=workbench};((TabControl)window.FindName("MainTabs")).Items.Insert(6,workbenchPage);window.GetType().GetField("workbenchTab",Private)!.SetValue(window,workbenchPage);window.GetType().GetField("referenceWorkbench",Private)!.SetValue(window,workbench);var lab=Field<TabControl>(window,"labTabs");var sessions=Field<PlayerSessions>(window,"sessions");var owner=sessions.Active;var bridge=owner.Bridge;
    bridge.Connect(new(Guid.NewGuid(),"Workflow test controller",0,0,""),IntPtr.Zero);Call(window,"RenderSettings");Call(window,"Display");
    Button Button(string label)=>Tree(lab).OfType<Button>().Single(b=>b.Content as string==label);
    void Click(string label)=>Button(label).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
@@ -73,6 +74,31 @@ internal static class WorkflowTests
     bridge.Input=Bridge.Raw() with{Buttons=pressed};Call(window,"ObserveReviveLab",3d);Call(window,"ObserveReviveLab",3.4d);Click("Capture held combination");
    }
    Check(owner.Audit.Results.All(r=>r.Match)&&!bridge.Configuring&&!owner.LabOwnsConfiguring,"all encoder audit steps can continue their owned capture and restore output");
+   tabs.SelectedItem=window.FindName("TestTab");var test=(InputTestView)window.FindName("TestPanel");bridge.Input=Bridge.Raw();Call(window,"Display");test.Sample(bridge.Input);test.Update(bridge.Input);
+   dashboard.Measure(new(1536,998));dashboard.Arrange(new Rect(0,0,1536,998));dashboard.UpdateLayout();var cards=(WrapPanel)test.FindName("ControlCards");
+   Check(cards.Children.Count>=12,"Test dock builds the physical controller's individual control cards");
+   foreach(var card in cards.Children.Cast<Button>()){card.ApplyTemplate();Check(card.ContentTemplate==null&&Visuals(card).OfType<StickerGlyph>().Any(g=>g.ActualWidth>0),"Test dock renders actual glyph content inside the full window style");}
+   Check(!Visuals(cards).OfType<TextBlock>().Any(t=>t.Text.Contains("System.Windows.Controls.StackPanel")),"Test dock never renders a WPF type name instead of a button");
+   bridge.Input=Bridge.Raw() with{Buttons=[false,false,true,false,false,false,false,false,false,false,false,false]};test.Sample(bridge.Input);test.Update(bridge.Input);long counted=test.Session.TotalPresses;cards.Children.Cast<Button>().First().RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));Check(test.Session.TotalPresses==counted&&counted>0,"Test dock retains live input counting and visual-only preview clicks");
+   void SavePreview(string name)
+   {
+    string? output=Environment.GetEnvironmentVariable("PADREVIVE_WORKFLOW_PREVIEW");if(output==null)return;Directory.CreateDirectory(output);bridge.Device=bridge.Device! with{Name="Simulated controller"};Call(window,"Display");dashboard.Measure(new(1536,998));dashboard.Arrange(new Rect(0,0,1536,998));dashboard.UpdateLayout();var bitmap=new RenderTargetBitmap(1536,998,96,96,PixelFormats.Pbgra32);bitmap.Render(dashboard);var png=new PngBitmapEncoder();png.Frames.Add(BitmapFrame.Create(bitmap));using var stream=File.Create(Path.Combine(output,name));png.Save(stream);
+   }
+   SavePreview("PadRevive-Test.png");tabs.SelectedItem=workbenchPage;workbench.SelectedIndex=5;lab.SelectedIndex=0;bridge.Input=Bridge.Raw();Call(window,"UpdateAiState");Click("Learn this stick");Check(owner.AiDriftCapture!=null&&bridge.Configuring,"Revive AI starts a measured capture only when explicitly requested");
+   for(int i=0;i<=150;i++){bridge.Input=Bridge.Raw(33768+i%5,32268+i%5);Call(window,"ObserveReviveLab",10+i*.02);}
+   Check(owner.AiDriftCapture!.Phase==DriftLearningPhase.Rim,"AI rest learning advances automatically to rim measurement");var aiCapture=owner.AiDriftCapture;
+   for(int direction=0;direction<16;direction++)for(int n=0;n<5;n++){double angle=direction*Math.PI/8;bridge.Input=Bridge.Raw((int)(aiCapture.CentreX+Math.Cos(angle)*.9*32767.5),(int)(aiCapture.CentreY+Math.Sin(angle)*.9*32767.5));Call(window,"ObserveReviveLab",14+direction+n*.02);}
+   Call(window,"UpdateAiState");Check(Field<Button>(window,"aiBuild").IsEnabled,"AI preview becomes available only after complete rim coverage");var previous=ProfileData.Clone(bridge.Profile);Click("Build tuning preview");Check(owner.AiDriftPreview!=null&&!bridge.Configuring,"AI model stays in preview while live output resumes");
+   bridge.Input=Bridge.Raw((int)aiCapture.CentreX,(int)aiCapture.CentreY);Call(window,"UpdateAiState");Call(window,"RefreshAiChecks");SavePreview("PadRevive-ReviveAI.png");
+   bridge.Profile.Name="Current profile";Click("Apply tuning");Check(bridge.Profile.LeftRescue.CentreX>33700&&owner.AiUndoProfile!=null&&bridge.Profile.RightSensitivity==previous.RightSensitivity&&bridge.Profile.Name=="Current profile","AI tuning merges the learned correction without overwriting newer profile settings");
+   Click("Undo last tuning");Check(bridge.Profile.LeftRescue.CentreX==previous.LeftRescue.CentreX&&owner.AiUndoProfile==null,"AI undo restores the previous tuning profile");
+   Click("Learn this stick");Click("Cancel learning");Check(owner.AiDriftCapture==null&&!bridge.Configuring&&!owner.LabOwnsConfiguring,"AI learning cancellation restores output and clears its unfinished model");
+   bridge.Profile.Accessibility.StickMouse=true;Click("Use gamepad input only");Check(!bridge.Profile.Accessibility.StickMouse,"profile insight action disables competing pointer output");
+   Call(window,"AskReviveAi");Check(((TextBlock)window.FindName("FooterText")).Text.Contains("summary-sharing"),"AI adviser requires explicit summary-sharing selection before any request");
+   Field<CheckBox>(window,"aiConsent").IsChecked=true;Call(window,"AskReviveAi");Check(((TextBlock)window.FindName("FooterText")).Text.Contains("API key"),"AI adviser remains disconnected without a configured key");
+   long now=System.Diagnostics.Stopwatch.GetTimestamp(),tick=System.Diagnostics.Stopwatch.Frequency/1000;for(int i=0;i<64;i++){long start=now-(512-i*8)*tick;bridge.Timing.Record(start,start+tick,start+tick,true,true,true);}Call(window,"RefreshTiming");workbench.SelectedIndex=6;SavePreview("PadRevive-Latency.png");
+   Check(Field<TextBlock>(window,"timingReadout").Text.Contains("125")&&Field<TextBlock>(window,"timingReadout").Text.Contains("Processing"),"latency monitor displays observed app rate and processing statistics");
+   owner.AiAdvice="Player one advice";other.AiAdvice="Player two advice";sessions.ActiveIndex=1;Call(window,"RefreshAiPlayer");Check(Field<TextBlock>(window,"aiAdviceText").Text=="Player two advice","AI adviser displays only the selected player's stored advice");sessions.ActiveIndex=0;Call(window,"RefreshAiPlayer");Check(Field<TextBlock>(window,"aiAdviceText").Text=="Player one advice","switching players restores the matching adviser context");
    Console.WriteLine($"{checks} real WPF workflow checks passed using synthetic input. No hardware APIs invoked.");return 0;
   }
   catch(Exception e){Console.Error.WriteLine(e);return 1;}

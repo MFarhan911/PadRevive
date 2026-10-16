@@ -1,0 +1,95 @@
+name: PadRevive new features
+
+on:
+  push:
+    branches: [codex/stick-sensitivity-rescue]
+    paths: [.github/workflows/publish-features-once.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: padrevive-beta3-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'Publish PadRevive new features'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: v0.12.0-beta.3
+      PADREVIVE_WORKFLOW_PREVIEW: ${{ runner.temp }}/padrevive-previews
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.401'
+      - name: Verify this publication is current
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $padReviveHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/$env:GITHUB_REF_NAME" --jq .object.sha
+          if ($LASTEXITCODE -ne 0 -or $padReviveHead -ne $env:GITHUB_SHA) { throw 'This one-time publication is no longer current. Use the existing release.' }
+      - name: Validate new features
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          dotnet run --project tests/Bridge.Tests.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { throw 'Core checks failed.' }
+          dotnet run --project renderer-tests/Renderer.Tests.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { throw 'Rendering checks failed.' }
+          dotnet run --project workflow-tests/Workflow.Tests.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { throw 'Feature workflow checks failed.' }
+      - name: Build Windows app
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          dotnet publish GenericPadBridge/GenericPadBridge.csproj -c Release -r win-x64 --self-contained true -o "$env:RUNNER_TEMP/padrevive-app"
+          if ($LASTEXITCODE -ne 0) { throw 'App build failed.' }
+      - name: Include feature previews and remove this one-time publisher
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $padReviveHead = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/$env:GITHUB_REF_NAME" --jq .object.sha
+          if ($LASTEXITCODE -ne 0 -or $padReviveHead -ne $env:GITHUB_SHA) { throw 'The source branch changed during validation.' }
+          Copy-Item -LiteralPath "$env:PADREVIVE_WORKFLOW_PREVIEW/PadRevive-ReviveAI.png" -Destination screenshots/revive-ai.png
+          Copy-Item -LiteralPath "$env:PADREVIVE_WORKFLOW_PREVIEW/PadRevive-Latency.png" -Destination screenshots/latency.png
+          Copy-Item -LiteralPath "$env:PADREVIVE_WORKFLOW_PREVIEW/PadRevive-Test.png" -Destination screenshots/test-preview.png
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f -- .github/workflows/publish-features-once.yml
+          if ($LASTEXITCODE -ne 0) { throw 'Could not remove the one-time publisher.' }
+          git add -- screenshots/revive-ai.png screenshots/latency.png screenshots/test-preview.png
+          git commit -m 'New feature previews'
+          if ($LASTEXITCODE -ne 0) { throw 'Could not include feature previews.' }
+          git push origin "HEAD:refs/heads/$env:GITHUB_REF_NAME"
+          if ($LASTEXITCODE -ne 0) { throw 'The source branch changed; publication stopped.' }
+      - name: Package new features
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $padReviveAssets = Join-Path $env:RUNNER_TEMP 'padrevive-release'
+          New-Item -ItemType Directory -Path $padReviveAssets -Force | Out-Null
+          $padReviveExe = Join-Path $padReviveAssets 'PadRevive-0.12.0-beta.3-win-x64.exe'
+          Copy-Item -LiteralPath "$env:RUNNER_TEMP/padrevive-app/GenericPadBridge.exe" -Destination $padReviveExe
+          $padReviveSource = Join-Path $padReviveAssets 'PadRevive-0.12.0-beta.3-source.zip'
+          git archive --format=zip "--output=$padReviveSource" HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Could not package the complete source.' }
+          foreach ($padReviveName in @('PadRevive-ReviveAI.png','PadRevive-Latency.png','PadRevive-Test.png')) {
+            Copy-Item -LiteralPath (Join-Path $env:PADREVIVE_WORKFLOW_PREVIEW $padReviveName) -Destination $padReviveAssets
+          }
+          $padReviveSums = Get-ChildItem -LiteralPath $padReviveAssets -File | Sort-Object Name | ForEach-Object { $padReviveHash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); "$padReviveHash  $($_.Name)" }
+          [IO.File]::WriteAllLines((Join-Path $padReviveAssets 'SHA256SUMS.txt'),$padReviveSums,[Text.UTF8Encoding]::new($false))
+          "PADREVIVE_RELEASE_DIR=$padReviveAssets" >> $env:GITHUB_ENV
+          $padReviveCommit = git rev-parse HEAD
+          "PADREVIVE_RELEASE_COMMIT=$padReviveCommit" >> $env:GITHUB_ENV
+      - name: Publish new features
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $padReviveFiles = Get-ChildItem -LiteralPath $env:PADREVIVE_RELEASE_DIR -File | ForEach-Object { $_.FullName }
+          gh release create $env:TAG @padReviveFiles --target $env:PADREVIVE_RELEASE_COMMIT --title 'PadRevive 0.12.0 Beta 3 · New features' --notes-file RELEASE.md --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
+

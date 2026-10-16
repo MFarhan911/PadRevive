@@ -34,7 +34,8 @@ public partial class InputTestView : UserControl
         // preserve clearance above the cards rather than moving it upward.
         double h=TestPanel.ActualHeight;
         if(h<=0)return;
-        double size=Math.Min(242,Math.Max(110,h-164));
+        CardScroll.MaxHeight=h>=500?116:58;
+        double size=Math.Min(242,Math.Max(110,h-(h>=500?220:164)));
         SplashFrame.Width=SplashFrame.Height=size;
     }
     public void Configure(MappingProfile value,int buttonCount,int povCount,ConceptLayout style,bool isConnected,bool reduceMotion)
@@ -54,7 +55,8 @@ public partial class InputTestView : UserControl
                 var glyph=new StickerGlyph{Text=Glyph(control),Width=24,Height=24,HorizontalAlignment=HorizontalAlignment.Center,Foreground=ColorFor(control)};
                 var count=new TextBlock{Text="0 presses",FontSize=8,HorizontalAlignment=HorizontalAlignment.Center,Foreground=Brush("#8097B5"),Margin=new(0,3,0,0)};
                 var content=new StackPanel();content.Children.Add(glyph);content.Children.Add(count);
-                var button=new Button{Width=83,Height=52,Margin=new(0,0,6,6),Padding=new(4),Content=content,Tag=control,Background=Brush("#182435"),BorderBrush=Brush("#33465F"),BorderThickness=new(1),ToolTip=control.Source.Name+" · "+control.Source.Detail+"\nClick for a visual preview; it does not count a hardware press."};
+                var button=new Button{Width=83,Height=52,Margin=new(0,0,6,6),Padding=new(4),Content=content,ContentTemplate=null,ContentTemplateSelector=null,HorizontalContentAlignment=HorizontalAlignment.Center,VerticalContentAlignment=VerticalAlignment.Center,Tag=control,Background=Brush("#182435"),BorderBrush=Brush("#33465F"),BorderThickness=new(1),ToolTip=control.Source.Name+" · "+control.Source.Detail+"\nClick for a visual preview; it does not count a hardware press."};
+                System.Windows.Automation.AutomationProperties.SetName(button,control.Source.Name+" · "+OutputProtocol.TargetName(control.Target,OutputController));
                 button.Click+=(_,_)=>Show((TestControl)button.Tag,true,true);ControlCards.Children.Add(button);cards.Add(control.Source.Token,(button,glyph,count));
             }
             if(displayed!=null&&!preview)displayed=InputTestSession.Describe(displayed.Source,profile);

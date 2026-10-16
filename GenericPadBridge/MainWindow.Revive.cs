@@ -23,7 +23,7 @@ public partial class MainWindow
  {
   try{if(File.Exists(VariantsPath)){variants=ProfileData.Read<List<CloneVariant>>(VariantsPath,8*1024*1024);if(variants.Count>128)throw new InvalidDataException("Too many verified variants.");foreach(var v in variants)v.Validate();}}catch(Exception e){variants=[];Message("Verified variants were not loaded: "+e.Message);}
   labTabs=new TabControl();workbench.Items.Add(new TabItem{Header="Revive Lab",Content=labTabs});
-  BuildRescue();BuildIdentification();BuildCombinationAudit();BuildMotorCalibration();BuildRepairHistory();BuildTraceInspector();BuildControllerArtwork();
+  BuildReviveAi();BuildRescue();BuildIdentification();BuildCombinationAudit();BuildMotorCalibration();BuildRepairHistory();BuildTraceInspector();BuildControllerArtwork();
  }
  private void BuildRescue()
  {
@@ -150,17 +150,18 @@ public partial class MainWindow
  private void FinishLabCapture(PlayerSession player){if(player.LabOwnsConfiguring){player.Bridge.Configuring=false;player.LabOwnsConfiguring=false;}foreach(var other in sessions.Players.Where(p=>p.LabBlockedBy==player.Number)){other.Bridge.Configuring=false;other.LabBlockedBy=0;}}
  private void CancelLabCapture(bool all=false)
  {
-  foreach(var p in all?sessions.Players:new[]{sessions.Active}){FinishLabCapture(p);if(p.Rescue is {Finished:false})p.Rescue=null;if(p.Challenge is {Finished:false})p.Challenge=null;if(p.Audit is {Finished:false})p.Audit=null;}
+  foreach(var p in all?sessions.Players:new[]{sessions.Active}){FinishLabCapture(p);if(p.Rescue is {Finished:false})p.Rescue=null;if(p.Challenge is {Finished:false})p.Challenge=null;if(p.Audit is {Finished:false})p.Audit=null;if(p.AiDriftCapture is {Phase:not DriftLearningPhase.Finished})p.AiDriftCapture=null;}
  }
  private void ObserveReviveLab(double seconds)
  {
   if(labTabs==null)return;
   foreach(var p in sessions.Players)
   {
-   var b=p.Bridge;if(p.LabOwnsConfiguring&&(!b.Connected||b.Input==null||b.HardwareSignature!=p.LabHardware)){FinishLabCapture(p);p.Rescue=null;p.Challenge=null;p.Audit=null;p.LabMessage="Capture ended because physical input became unavailable.";}
+   var b=p.Bridge;if(p.LabOwnsConfiguring&&(!b.Connected||b.Input==null||!b.Configuring||b.HardwareSignature!=p.LabHardware)){FinishLabCapture(p);p.Rescue=null;p.Challenge=null;p.Audit=null;p.AiDriftCapture=null;p.AiDriftPreview=null;p.LabMessage="Capture ended because physical input became unavailable.";}
    if(p.LabOwnsConfiguring){p.Rescue?.Observe(b.Input);p.Challenge?.Observe(b.Input,seconds);p.Audit?.Observe(b.Input,seconds);}
    p.Recorder.Observe(seconds,b.Profile,b.Input,b.Mapped,b.Effective,b.VirtualConnected,b.Configuring||b.UiPaused,b.FeedbackRequest,b.LastMotorCommand,b.RumbleReady);
   }
+  ObserveReviveAi(seconds);
   if(WindowState==WindowState.Minimized||!IsVisible||seconds-labPainted<.2)return;labPainted=seconds;
   if(MainTabs.SelectedItem!=workbenchTab||!labTabs.IsVisible)return;var owner=sessions.Active;
   rescueText.Text=owner.Rescue?.Summary??"Choose a reported stick and start a rest capture.";

@@ -1,48 +1,28 @@
-# PadRevive 0.12.0 Beta 2
+# PadRevive 0.12.0 Beta 3
 
-Free, open-source controller tools for budget gamepads and arcade sticks on Windows.
+## New features
 
-## Why it was created
+- **Revive AI drift learner** — learn a stick's rest noise and directional travel, preview the tuning, apply it, or undo the last tuning.
+- **AI adviser** — optional OpenAI guidance for stick response, timing, vibration and input conflicts, using your own API key.
+- **Profile insights** — local checks for mixed pointer/gamepad input, output state and vibration settings.
+- **Latency monitor** — app processing and poll-spacing statistics, observed rate, error counters and a live graph.
+- **Independent stick sensitivity** — 25%–200% per stick, with individual resets and saved profiles.
+- **Interactive Test dock** — controller button glyphs, live press counts and visual previews.
 
-No other software I tried made my stick rumble. PadRevive is the only one that did. It brings that feedback back, alongside the tools to map, calibrate, and test a controller.
+The local tools work offline. AI advice requires an OpenAI API account and explicit summary sharing. AI advice never changes settings automatically. Timing measurements cover PadRevive's work; USB, game and display latency require separate measurement.
 
-## Features
+## Feature previews
 
-- Live controller preview, moving sticks, button presses, and input meters.
-- Remapping, guided setup, deadzones, and calibration.
-- Motor tests and game vibration passthrough on supported controllers.
-- Xbox 360 / DualShock 4 virtual output and two-player support.
-- Local profiles, per-game mappings, and controller health tools.
-- A modern, easy-to-use, interactive Windows interface.
+Previews use simulated controller input.
 
-## Screenshots
+![Revive AI](https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.3/PadRevive-ReviveAI.png)
+![Latency monitor](https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.3/PadRevive-Latency.png)
+![Interactive Test dock](https://github.com/MFarhan911/PadRevive/releases/download/v0.12.0-beta.3/PadRevive-Test.png)
 
-### Controller
+## Get started
 
-![PadRevive Controller screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/controller.png)
+Download **PadRevive-0.12.0-beta.3-win-x64.exe**, close an older PadRevive window when convenient, and open the new app. Your saved profiles remain compatible. Find **Revive AI** in **Revive Lab**, and **Latency** in **Workbench**.
 
-### Test
+Windows x64. Runtime included. ViGEmBus is required separately for Xbox 360 / DualShock 4 virtual output. Physical rumble depends on the controller's supported motor backend. This beta executable is unsigned.
 
-![PadRevive Test screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/test.png)
-
-### Rumble
-
-![PadRevive Rumble screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/rumble.png)
-
-### Workbench
-
-![PadRevive Workbench screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/workbench.png)
-
-### Revive Lab
-
-![PadRevive Revive Lab screen](https://raw.githubusercontent.com/MFarhan911/PadRevive/main/screenshots/revive-lab.png)
-
-[Explore the interactive app tour](https://mfarhan911.github.io/PadRevive/)
-
-## Downloads
-
-- **PadRevive-0.12.0-beta.2-win-x64.exe** — self-contained Windows x64 app.
-- **PadRevive-0.12.0-beta.2-source.zip** — complete source, artwork, libraries, and licenses.
-- **SHA256SUMS.txt** — download checksums.
-
-ViGEmBus is required separately for virtual output. Rumble support includes native XInput and supported 0810:0001 HID motor layouts. The beta executable is unsigned.
+Source code and SHA-256 checksums are included with the release. PadRevive is free and open source under GPL-3.0-or-later.

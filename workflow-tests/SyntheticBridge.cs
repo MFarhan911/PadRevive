@@ -24,6 +24,7 @@ public sealed class Bridge : IDisposable
  public string HardwareSignature {get;set;}=new('A',64);
  public int ButtonCount=>12;
  public int PovCount=>1;
+ public BridgeTiming Timing {get;}=new();
  public long Frames=>0;
  public long FeedbackCount=>0;
  public string ObjectsDiagnostic=>"Synthetic";

@@ -77,6 +77,7 @@ public sealed class Bridge : IDisposable
     public long Frames { get; private set; }
     public long FeedbackCount { get; private set; }
     private long lastInputError;
+    public BridgeTiming Timing {get;}=new();
     public List<ControllerChoice> Discover()
     {
         var found=new List<ControllerChoice>();
@@ -104,7 +105,7 @@ public sealed class Bridge : IDisposable
     }
     public void Connect(ControllerChoice d,IntPtr windowHandle,bool ownMotors=true)
     {
-        Disconnect();motorOwned=ownMotors;Device=d;
+        Disconnect();Timing.Reset();motorOwned=ownMotors;Device=d;
         try
         {
             if(d.XInputIndex>=0)
@@ -230,6 +231,7 @@ public sealed class Bridge : IDisposable
     public void Poll()
     {
         if(!Connected)return;
+        long timingStarted=Stopwatch.GetTimestamp(),timingSubmitted=timingStarted;bool timingInput=false,timingWritten=false,timingExpected=VirtualConnected&&!configuring&&!uiPaused;
         try
         {
             if(xinputIndex>=0)
@@ -243,12 +245,12 @@ public sealed class Bridge : IDisposable
             var all=new Dictionary<AxisSource,int>{{AxisSource.X,s.X},{AxisSource.Y,s.Y},{AxisSource.Z,s.Z},{AxisSource.RotationX,s.RotationX},{AxisSource.RotationY,s.RotationY},{AxisSource.RotationZ,s.RotationZ},{AxisSource.Slider0,s.Sliders.ElementAtOrDefault(0)},{AxisSource.Slider1,s.Sliders.ElementAtOrDefault(1)}};
             Input=new(s.Buttons.Take(ButtonCount).ToArray(),all.Where(a=>Sources.Contains(a.Key)).ToDictionary(),s.PointOfViewControllers.Take(PovCount).ToArray());
             }
-            Mapped=Mapper.Map(Profile,Input);Output=modifiers.Apply(Mapped,Profile.Accessibility,Stopwatch.GetTimestamp()/(double)Stopwatch.Frequency,Profile.Socd);
+            timingInput=true;Mapped=Mapper.Map(Profile,Input);Output=modifiers.Apply(Mapped,Profile.Accessibility,Stopwatch.GetTimestamp()/(double)Stopwatch.Frequency,Profile.Socd);
             Effective=configuring||uiPaused||!VirtualConnected?new(0,0,0,0,0,0,0):Output;
             if(configuring||uiPaused)NeutralXbox();
             else if(xbox!=null){xbox.ButtonState=(ushort)Output.Buttons;xbox.LeftTrigger=Output.LT;xbox.RightTrigger=Output.RT;xbox.LeftThumbX=Output.LX;xbox.LeftThumbY=Output.LY;xbox.RightThumbX=Output.RX;xbox.RightThumbY=Output.RY;xbox.SubmitReport();}
             else if(ds4!=null)SendDs4(Output);else if(viiper!=null)viiper.Submit(Output);
-            Frames++;if(lastInputError!=0)Status=VirtualConnected?"Physical input → virtual "+OutputName+" · active":"Physical input monitor active";lastInputError=0;
+            timingSubmitted=Stopwatch.GetTimestamp();timingWritten=timingExpected;Frames++;if(lastInputError!=0)Status=VirtualConnected?"Physical input → virtual "+OutputName+" · active":"Physical input monitor active";lastInputError=0;
             WriteRumble();
         }
         catch(Exception e)
@@ -258,6 +260,7 @@ public sealed class Bridge : IDisposable
             try{joystick?.Acquire();}catch{}
             if(Stopwatch.GetElapsedTime(lastInputError,now).TotalSeconds>2)Disconnect();
         }
+        finally{Timing.Record(timingStarted,timingSubmitted,Stopwatch.GetTimestamp(),timingInput,timingExpected,timingWritten);}
     }
     private void WriteRumble()
     {
@@ -303,6 +306,6 @@ public sealed class Bridge : IDisposable
         if(joystick!=null){try{joystick.Unacquire();}catch{}joystick.Dispose();joystick=null;}
         Input=null;Output=null;Mapped=null;Effective=new(0,0,0,0,0,0,0);Status="Disconnected · virtual output neutral";
     }
-    public object Diagnostics()=>new{App="PadRevive 0.12.0 Beta 2 · GenericPadBridge",OS=Environment.OSVersion.ToString(),Device,Support=Device==null?"No controller":DevicePresets.Support(Device),ButtonCount,PovCount,Axes=Sources.Select(a=>a.ToString()),ObjectsDiagnostic,Profile,Status,Frames,OutputController,VirtualConnected,ExperimentalOutput,XboxConnected,Ds4WireReport=OutputController==EmulatedController.DualShock4&&Output!=null?OutputProtocol.Ds4(Output):(Ds4Report?)null,VirtualXInputIndex=virtualIndex,AudioReactive,AudioLevel,UiPaused,Configuring,FeedbackCount,FeedbackStatus=Volatile.Read(ref feedbackStatus),MotorOwned,RumbleReady,RumbleStatus,HidDiagnostic,HardwareVerified=false};
+    public object Diagnostics()=>new{App="PadRevive 0.12.0 Beta 3 · GenericPadBridge",OS=Environment.OSVersion.ToString(),Device,Support=Device==null?"No controller":DevicePresets.Support(Device),ButtonCount,PovCount,Axes=Sources.Select(a=>a.ToString()),ObjectsDiagnostic,Profile,Status,Frames,OutputController,VirtualConnected,ExperimentalOutput,XboxConnected,Ds4WireReport=OutputController==EmulatedController.DualShock4&&Output!=null?OutputProtocol.Ds4(Output):(Ds4Report?)null,VirtualXInputIndex=virtualIndex,AudioReactive,AudioLevel,UiPaused,Configuring,FeedbackCount,FeedbackStatus=Volatile.Read(ref feedbackStatus),MotorOwned,RumbleReady,RumbleStatus,HidDiagnostic,HardwareVerified=false,Timing=Timing.Snapshot()};
     public void Dispose(){Disconnect();directInput.Dispose();}
 }
